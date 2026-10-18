@@ -15,12 +15,23 @@
       {"clash_mode": "Global", "server": "fakeip"},
       {"rule_set": ["fakeipfilter-cn", "geosite-cn", "geosite-microsoft@cn", "geosite-apple@cn", "geosite-private"], "server": "ali"},
       {"rule_set": "fakeipfilter-!cn", "server": "google"},
-      {"type": "logical", "mode": "and", "rules": [{"query_type": ["A", "AAAA"]}, {"rule_set": "geosite-geolocation-!cn", "invert": true}], "action": "evaluate", "server": "google", "client_subnet": "223.5.5.0/24","timeout": "2s"},
+      {
+        "type": "logical",
+        "mode": "and",
+        "rules": [
+          {"query_type": ["A", "AAAA"]},
+          {"rule_set": "geosite-geolocation-!cn", "invert": true}
+        ],
+        "action": "evaluate",
+        "server": "google",
+        "client_subnet": "223.5.5.0/24",
+        "timeout": "2s"
+      },
       {"match_response": true, "rule_set": "geoip-cn", "server": "ali"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "google",
-    "strategy": "ipv4_only", 
+    "strategy": "ipv4_only",
     "cache_capacity": 8192,
     "optimistic": {"enabled": true},
     "reverse_mapping": true
@@ -56,8 +67,25 @@
   "route": {
     "rules": [
       {"source_ip_cidr": ["10.10.11.252/32"], "outbound": "直连"},
-      {"type": "logical", "mode": "and", "rules": [{"port": [53, 853], "invert": true}, {"clash_mode": "Global", "invert": true}, {"type": "logical", "mode": "or", "rules": [{"ip_is_private": true}, {"rule_set": "geoip-cn"}]}], "action": "bypass"},
-      {"type": "logical", "mode": "or", "rules": [{"domain_suffix": "push.apple.com"}, {"rule_set": "geoip-telegram"}], "invert": true, "action": "sniff", "sniffer": ["http", "tls", "stun", "quic", "dns"], "timeout": "100ms"},
+      {
+        "type": "logical",
+        "mode": "and",
+        "rules": [
+          {"port": [53, 853], "invert": true},
+          {"clash_mode": "Global", "invert": true},
+          {"type": "logical", "mode": "or", "rules": [{"ip_is_private": true}, {"rule_set": "geoip-cn"}]}
+        ],
+        "action": "bypass"
+      },
+      {
+        "type": "logical",
+        "mode": "or",
+        "rules": [{"domain_suffix": "push.apple.com"}, {"rule_set": "geoip-telegram"}],
+        "invert": true,
+        "action": "sniff",
+        "sniffer": ["http", "tls", "stun", "quic", "dns"],
+        "timeout": "100ms"
+      },
       {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "直连"},
       {"type": "logical", "mode": "or", "rules": [{"port": 853}, {"protocol": ["stun", "quic"]}], "action": "reject", "no_drop": true},
@@ -158,4 +186,3 @@
     "timestamp": true
   }
 }
-
